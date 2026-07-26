@@ -1,0 +1,57 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.iml
+.DS_Store
+
+# Android
+.gradle/
+.build/
+local.properties
+*.apk
+*.ap_
+*.dex
+*.class
+.classpath
+.project
+.settings/
+bin/
+gen/
+
+# Backend
+backend/vendor/
+backend/node_modules/
+backend/.env
+backend/.env.local
+backend/composer.lock
+backend/storage/logs/
+backend/storage/cache/
+backend/public/uploads/
+
+# Admin Panel
+admin/node_modules/
+admin/dist/
+admin/build/
+admin/.env.local
+
+# Database
+*.sql
+*.sqlite
+*.db
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temp files
+*.tmp
+*.temp
+*.log
+*.pid
+
+# IDE specific
+*.sublime-project
+*.sublime-workspace
