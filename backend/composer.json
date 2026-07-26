@@ -1,39 +1,46 @@
 {
-  "name": "vinod2244/transport-connect",
-  "description": "AP Transport Connect - Production Ready Transport Marketplace Platform",
+  "name": "ap-transport-connect/backend",
+  "description": "AP Transport Connect - Production Ready Transport Booking Platform Backend",
   "type": "project",
   "license": "proprietary",
-  "authors": [
-    {
-      "name": "Vinod Kumar",
-      "email": "vinod.kumarg@outlook.com"
-    }
-  ],
   "require": {
     "php": "^8.3",
-    "firebase/php-jwt": "^6.10",
-    "phpmailer/phpmailer": "^6.9",
-    "vlucas/phpdotenv": "^5.5",
-    "monolog/monolog": "^3.4",
-    "psr/log": "^3.0",
-    "psr/http-message": "^2.0",
-    "guzzlehttp/guzzle": "^7.7",
-    "firebase/php-sdk": "^6.6",
+    "laravel/framework": "^11.0",
+    "laravel/sanctum": "^4.0",
+    "laravel/tinker": "^2.0",
+    "firebase/php-jwt": "^6.8",
+    "google/apiclient": "^2.50",
+    "kreait/firebase-php": "^7.0",
     "razorpay/razorpay": "^2.8",
-    "ext-json": "*",
-    "ext-curl": "*",
-    "ext-pdo": "*",
-    "ext-mbstring": "*"
+    "twilio/sdk": "^8.0",
+    "aws/aws-sdk-php": "^3.300",
+    "predis/predis": "^2.1",
+    "doctrine/dbal": "^3.6",
+    "guzzlehttp/guzzle": "^7.5",
+    "spatie/laravel-permission": "^6.0",
+    "spatie/laravel-settings": "^4.0",
+    "spatie/laravel-query-builder": "^5.0",
+    "spatie/laravel-activitylog": "^4.7",
+    "knuckleswtf/scribe": "^4.0",
+    "barryvdh/laravel-cors": "^2.1",
+    "symfony/http-client": "^7.0",
+    "phpoffice/phpmailer": "^6.8",
+    "monolog/monolog": "^3.0"
   },
   "require-dev": {
+    "fakerphp/faker": "^1.21",
+    "laravel/pint": "^1.12",
+    "laravel/sail": "^1.26",
+    "mockery/mockery": "^1.5",
+    "nunomaduro/collision": "^7.8",
     "phpunit/phpunit": "^10.5",
-    "friendsofphp/php-cs-fixer": "^3.49",
-    "phpstan/phpstan": "^1.10"
+    "spatie/laravel-ray": "^1.32"
   },
   "autoload": {
     "psr-4": {
       "App\\": "app/",
-      "Config\\": "config/"
+      "Database\\Factories\\": "database/factories/",
+      "Database\\Seeders\\": "database/seeders/"
     }
   },
   "autoload-dev": {
@@ -42,13 +49,25 @@
     }
   },
   "scripts": {
-    "start": "php -S localhost:8000 -t public/",
-    "test": "phpunit",
-    "format": "php-cs-fixer fix",
-    "lint": "phpstan analyse"
+    "post-autoload-dump": [
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+      "@php artisan package:discover --ansi"
+    ],
+    "post-update-cmd": [
+      "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+    ],
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ],
+    "post-create-project-cmd": [
+      "@php artisan key:generate --ansi"
+    ]
   },
-  "config": {
-    "optimize-autoloader": true,
-    "preferred-install": "dist"
-  }
+  "extra": {
+    "laravel": {
+      "dont-discover": []
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
 }
