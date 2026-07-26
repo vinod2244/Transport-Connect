@@ -89,6 +89,80 @@ CREATE TABLE IF NOT EXISTS `user_devices` (
   INDEX `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Auth Sessions
+CREATE TABLE IF NOT EXISTS `auth_sessions` (
+  `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
+  `public_id` VARCHAR(64) NOT NULL UNIQUE,
+  `device_id` VARCHAR(255) NOT NULL,
+  `device_name` VARCHAR(100),
+  `device_type` ENUM('android', 'ios', 'web') NOT NULL DEFAULT 'web',
+  `ip_address` VARCHAR(45),
+  `user_agent` VARCHAR(500),
+  `remember_me` BOOLEAN DEFAULT FALSE,
+  `last_activity_at` TIMESTAMP NULL,
+  `expires_at` TIMESTAMP NOT NULL,
+  `revoked_at` TIMESTAMP NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  INDEX `idx_auth_sessions_user_id` (`user_id`),
+  INDEX `idx_auth_sessions_device_id` (`device_id`),
+  INDEX `idx_auth_sessions_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Refresh Tokens
+CREATE TABLE IF NOT EXISTS `auth_refresh_tokens` (
+  `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
+  `session_id` BIGINT UNSIGNED NOT NULL,
+  `token_hash` CHAR(64) NOT NULL UNIQUE,
+  `remember_me` BOOLEAN DEFAULT FALSE,
+  `expires_at` TIMESTAMP NOT NULL,
+  `revoked_at` TIMESTAMP NULL,
+  `revoked_reason` VARCHAR(100),
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`session_id`) REFERENCES `auth_sessions`(`id`) ON DELETE CASCADE,
+  INDEX `idx_auth_refresh_tokens_user_id` (`user_id`),
+  INDEX `idx_auth_refresh_tokens_session_id` (`session_id`),
+  INDEX `idx_auth_refresh_tokens_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- OTP Challenges
+CREATE TABLE IF NOT EXISTS `auth_otps` (
+  `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
+  `purpose` ENUM('login', 'password_reset') NOT NULL,
+  `channel` ENUM('email', 'phone') NOT NULL,
+  `destination` VARCHAR(255) NOT NULL,
+  `code_hash` VARCHAR(255) NOT NULL,
+  `expires_at` TIMESTAMP NOT NULL,
+  `attempt_count` INT DEFAULT 0,
+  `consumed_at` TIMESTAMP NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  INDEX `idx_auth_otps_user_purpose` (`user_id`, `purpose`),
+  INDEX `idx_auth_otps_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Password Reset Tokens
+CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
+  `id` BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
+  `token_hash` CHAR(64) NOT NULL UNIQUE,
+  `source` VARCHAR(50) NOT NULL,
+  `expires_at` TIMESTAMP NOT NULL,
+  `consumed_at` TIMESTAMP NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  INDEX `idx_password_reset_tokens_user_id` (`user_id`),
+  INDEX `idx_password_reset_tokens_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ============================================
 -- 2. DRIVER TABLES
 -- ============================================

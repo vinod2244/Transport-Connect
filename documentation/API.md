@@ -195,8 +195,10 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "phone": "9876543210",
-  "password": "SecurePass123"
+  "identifier": "9876543210",
+  "password": "SecurePass123",
+  "role": "customer",
+  "remember_me": false
 }
 ```
 
@@ -213,52 +215,11 @@ Content-Type: application/json
       "email": "john@example.com",
       "role": "customer"
     },
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    "access_token": "******",
+    "refresh_token": "******",
+    "expires_in": 3600,
+    "refresh_expires_in": 604800
   }
-}
-```
-
----
-
-#### Refresh Token
-```
-POST /auth/refresh
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Response:**
-```json
-{
-  "status": 200,
-  "message": "Token refreshed",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expires_in": 86400
-  }
-}
-```
-
----
-
-#### Logout
-```
-POST /auth/logout
-Authorization: Bearer <jwt_token>
-```
-
-**Response:**
-```json
-{
-  "status": 200,
-  "message": "Logged out successfully"
 }
 ```
 

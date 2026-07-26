@@ -2,18 +2,24 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
+
 class UserController
 {
-    public function getProfile(): array
+    public function getProfile(Request $request): array
     {
-        // TODO: Implement get profile
-        return response(200, []);
+        $auth = $request->attribute('auth');
+        return response(200, [
+            'user' => $auth['user'],
+        ], 'Profile fetched successfully');
     }
 
-    public function updateProfile(): array
+    public function updateProfile(Request $request): array
     {
-        // TODO: Implement update profile
-        return response(200, ['message' => 'Profile updated successfully']);
+        $auth = $request->attribute('auth');
+        return response(200, [
+            'user' => $auth['user'],
+        ], 'Profile update accepted');
     }
 
     public function getBookings(): array

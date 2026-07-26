@@ -2,59 +2,81 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
+use App\Services\AuthService;
+
 class AuthController
 {
-    public function register(): array
+    public function register(Request $request): array
     {
-        // TODO: Implement user registration
-        return response(201, ['message' => 'User registered successfully']);
+        return $this->service()->register($request->body());
     }
 
-    public function login(): array
+    public function login(Request $request): array
     {
-        // TODO: Implement user login
-        return response(200, ['token' => 'jwt_token_here']);
+        return $this->service()->loginWithPassword($request->body(), $request);
     }
 
-    public function verifyOtp(): array
+    public function verifyOtp(Request $request): array
     {
-        // TODO: Implement OTP verification
-        return response(200, ['verified' => true]);
+        return $this->service()->verifyOtp($request->body(), $request);
     }
 
-    public function sendOtp(): array
+    public function sendOtp(Request $request): array
     {
-        // TODO: Implement OTP sending
-        return response(200, ['message' => 'OTP sent successfully']);
+        return $this->service()->sendOtp($request->body());
     }
 
-    public function refreshToken(): array
+    public function refreshToken(Request $request): array
     {
-        // TODO: Implement token refresh
-        return response(200, ['token' => 'new_jwt_token_here']);
+        return $this->service()->refreshTokens($request->body(), $request);
     }
 
-    public function logout(): array
+    public function logout(Request $request): array
     {
-        // TODO: Implement logout
-        return response(200, ['message' => 'Logged out successfully']);
+        return $this->service()->logout($request->body(), $request->attribute('auth'));
     }
 
-    public function forgotPassword(): array
+    public function logoutAll(Request $request): array
     {
-        // TODO: Implement forgot password
-        return response(200, ['message' => 'Password reset link sent']);
+        $auth = $request->attribute('auth');
+        return $this->service()->logoutAllSessions((int) $auth['user']['id']);
     }
 
-    public function resetPassword(): array
+    public function sessions(Request $request): array
     {
-        // TODO: Implement password reset
-        return response(200, ['message' => 'Password reset successfully']);
+        $auth = $request->attribute('auth');
+        return $this->service()->listSessions((int) $auth['user']['id']);
     }
 
-    public function googleLogin(): array
+    public function forgotPassword(Request $request): array
     {
-        // TODO: Implement Google login
-        return response(200, ['token' => 'jwt_token_here']);
+        return $this->service()->forgotPassword($request->body());
+    }
+
+    public function verifyPasswordReset(Request $request): array
+    {
+        return $this->service()->verifyPasswordReset($request->body());
+    }
+
+    public function resetPassword(Request $request): array
+    {
+        return $this->service()->resetPassword($request->body());
+    }
+
+    public function changePassword(Request $request): array
+    {
+        $auth = $request->attribute('auth');
+        return $this->service()->changePassword((int) $auth['user']['id'], $request->body());
+    }
+
+    public function googleLogin(Request $request): array
+    {
+        return error_response(501, 'Google login is not implemented yet');
+    }
+
+    private function service(): AuthService
+    {
+        return new AuthService();
     }
 }

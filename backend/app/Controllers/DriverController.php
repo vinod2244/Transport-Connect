@@ -2,12 +2,16 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
+
 class DriverController
 {
-    public function getDashboard(): array
+    public function getDashboard(Request $request): array
     {
-        // TODO: Implement get dashboard
-        return response(200, []);
+        $auth = $request->attribute('auth');
+        return response(200, [
+            'driver' => $auth['user'],
+        ], 'Driver dashboard fetched successfully');
     }
 
     public function getTrips(): array
@@ -82,10 +86,12 @@ class DriverController
         return response(201, ['message' => 'Document uploaded successfully']);
     }
 
-    public function getProfile(): array
+    public function getProfile(Request $request): array
     {
-        // TODO: Implement get profile
-        return response(200, []);
+        $auth = $request->attribute('auth');
+        return response(200, [
+            'driver' => $auth['user'],
+        ], 'Driver profile fetched successfully');
     }
 
     public function updateProfile(): array
