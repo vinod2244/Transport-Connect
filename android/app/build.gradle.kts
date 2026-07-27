@@ -5,6 +5,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+val mapsApiKey = (project.findProperty("MAPS_API_KEY") as String?) ?: ""
+val apiBaseUrl = (project.findProperty("API_BASE_URL") as String?) ?: "https://example.com/api/"
+
 android {
     namespace = "com.aptransportconnect"
     compileSdk = 34
@@ -21,7 +24,8 @@ android {
             useSupportLibrary = true
         }
 
-        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = "YOUR_GOOGLE_MAPS_API_KEY"
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = mapsApiKey
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
     buildTypes {
@@ -49,6 +53,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {

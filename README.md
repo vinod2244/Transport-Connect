@@ -119,8 +119,9 @@ Transport-Connect/
    gradle :app:assembleDebug
    ```
    - Open `android/` in Android Studio (or run via CLI as above)
-   - Set Google Maps API key in `android/app/build.gradle.kts` manifest placeholder `GOOGLE_MAPS_API_KEY`
-   - Update backend API base URL in `android/app/src/main/java/com/aptransportconnect/utils/ServiceLocator.kt`
+   - Set `MAPS_API_KEY` and `API_BASE_URL` in your `~/.gradle/gradle.properties` (or project `gradle.properties`)
+     - `MAPS_API_KEY=your_google_maps_key`
+     - `API_BASE_URL=https://your-backend-host/api/`
    - Run the app module `:app`
 
 ### Android Customer App Features

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.aptransportconnect.domain.model.PaymentState
+import com.aptransportconnect.presentation.navigation.AppRoute
 import com.aptransportconnect.presentation.viewmodel.AuthViewModel
 import com.aptransportconnect.presentation.viewmodel.BookingDetailsViewModel
 import com.aptransportconnect.presentation.viewmodel.BookingHistoryViewModel
@@ -112,7 +113,7 @@ fun HomeScreen(onNavigate: (String) -> Unit) {
         "Search Vehicle" to "search",
         "Booking History" to "booking_history",
         "Notifications" to "notifications",
-        "Chat" to "chat",
+        "Chat" to "chat/${AppRoute.DEFAULT_CHAT_THREAD}",
         "Profile" to "profile",
         "Settings" to "settings",
     )
@@ -151,8 +152,10 @@ fun SearchVehicleScreen(vm: SearchVehicleViewModel, onBook: (String) -> Unit) {
 @Composable
 fun BookingScreen(vm: BookingViewModel, vehicleId: String, onCreated: (String) -> Unit) {
     val booking by vm.current.collectAsStateWithLifecycle()
-    var pickup by remember { mutableStateOf("Hyderabad") }
-    var drop by remember { mutableStateOf("Vijayawada") }
+    var pickup by remember { mutableStateOf("") }
+    var drop by remember { mutableStateOf("") }
+    var amountText by remember { mutableStateOf("2500") }
+    var etaText by remember { mutableStateOf("120") }
 
     LaunchedEffect(booking?.id) { booking?.id?.let(onCreated) }
 
@@ -161,7 +164,17 @@ fun BookingScreen(vm: BookingViewModel, vehicleId: String, onCreated: (String) -
         Text("Vehicle: $vehicleId")
         OutlinedTextField(value = pickup, onValueChange = { pickup = it }, label = { Text("Pickup") })
         OutlinedTextField(value = drop, onValueChange = { drop = it }, label = { Text("Drop") })
-        Button(onClick = { vm.create(vehicleId, pickup, drop) }) { Text("Create Booking") }
+        OutlinedTextField(value = amountText, onValueChange = { amountText = it }, label = { Text("Amount") })
+        OutlinedTextField(value = etaText, onValueChange = { etaText = it }, label = { Text("ETA (minutes)") })
+        Button(onClick = {
+            vm.create(
+                vehicleId = vehicleId,
+                pickup = pickup,
+                drop = drop,
+                amount = amountText.toDoubleOrNull() ?: 0.0,
+                etaMinutes = etaText.toIntOrNull() ?: 0,
+            )
+        }) { Text("Create Booking") }
     }
 }
 

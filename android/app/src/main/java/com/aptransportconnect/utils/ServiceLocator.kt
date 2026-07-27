@@ -2,13 +2,12 @@ package com.aptransportconnect.utils
 
 import android.content.Context
 import androidx.room.Room
+import com.aptransportconnect.BuildConfig
 import com.aptransportconnect.data.local.AppDatabase
 import com.aptransportconnect.data.remote.service.ApiService
 import com.aptransportconnect.data.repository.SessionStore
 import com.aptransportconnect.data.repository.TransportRepository
 import com.aptransportconnect.data.repository.TransportRepositoryImpl
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -28,7 +27,7 @@ object ServiceLocator {
     private fun createRepository(context: Context): TransportRepository {
         val sessionStore = SessionStore(context)
         val authInterceptor = Interceptor { chain ->
-            val token = runBlocking { sessionStore.authToken.first() }
+            val token = sessionStore.authTokenSync()
             val request = chain.request().newBuilder().apply {
                 if (token.isNotBlank()) {
                     addHeader("Authorization", "******")
@@ -43,7 +42,7 @@ object ServiceLocator {
             .build()
 
         val api = Retrofit.Builder()
-            .baseUrl("https://example.com/api/") // TODO: Replace with backend base URL.
+            .baseUrl(BuildConfig.API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()

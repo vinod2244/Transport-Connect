@@ -31,7 +31,7 @@ class TransportRepositoryImpl(
     private val bookingDao: BookingDao,
     private val notificationDao: NotificationDao,
     private val chatDao: ChatDao,
-    private val sessionStore: SessionStore,
+    private val sessionStore: SessionStore
 ) : TransportRepository {
 
     override suspend fun login(mobile: String, password: String, rememberMe: Boolean): ResultState<UserSession> =
@@ -68,8 +68,8 @@ class TransportRepositoryImpl(
         api.searchVehicles(query).map { it.toDomain() }
     }.fallback {
         listOf(
-            Vehicle("1", "Ashok Leyland 12T", "Truck", 12.0, "https://picsum.photos/300/200"),
-            Vehicle("2", "Tata Ace", "Mini Truck", 1.0, "https://picsum.photos/300/201"),
+            Vehicle("1", "Ashok Leyland 12T", "Truck", 12.0, ""),
+            Vehicle("2", "Tata Ace", "Mini Truck", 1.0, ""),
         ).filter { it.name.contains(query, true) || query.isBlank() }
     }
 
@@ -162,7 +162,7 @@ class TransportRepositoryImpl(
     override suspend fun profile(): ResultState<Profile> = safeApiCall {
         api.profile().toDomain()
     }.fallback {
-        Profile("Customer", "9999999999", "https://picsum.photos/120", "customer@example.com")
+        Profile("Customer", "9999999999", "", "customer@example.com")
     }
 
     override suspend fun logout() {

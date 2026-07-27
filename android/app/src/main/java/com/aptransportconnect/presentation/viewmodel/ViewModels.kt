@@ -13,7 +13,6 @@ import com.aptransportconnect.domain.model.PaymentState
 import com.aptransportconnect.domain.model.Profile
 import com.aptransportconnect.domain.model.TrackingUpdate
 import com.aptransportconnect.domain.model.Vehicle
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,8 +29,8 @@ class SplashViewModel(private val repository: TransportRepository) : ViewModel()
 
     init {
         viewModelScope.launch {
-            val onboardingDone = repository.onboardingDone().collectOne()
-            val loggedIn = repository.isLoggedIn().collectOne()
+            val onboardingDone = repository.onboardingDone().first()
+            val loggedIn = repository.isLoggedIn().first()
             _state.value = SplashState(false, when {
                 !onboardingDone -> "onboarding"
                 !loggedIn -> "login"
@@ -95,8 +94,8 @@ class BookingViewModel(private val repository: TransportRepository) : ViewModel(
     private val _current = MutableStateFlow<Booking?>(null)
     val current = _current.asStateFlow()
 
-    fun create(vehicleId: String, pickup: String, drop: String) {
-        val booking = Booking("", vehicleId, pickup, drop, "INITIATED", 2500.0, 120)
+    fun create(vehicleId: String, pickup: String, drop: String, amount: Double, etaMinutes: Int) {
+        val booking = Booking("", vehicleId, pickup, drop, "INITIATED", amount, etaMinutes)
         viewModelScope.launch {
             when (val result = repository.createBooking(booking)) {
                 is ResultState.Success -> _current.value = result.data
@@ -131,9 +130,13 @@ class TrackingViewModel(private val repository: TransportRepository) : ViewModel
                     is ResultState.Success -> _tracking.value = result.data
                     else -> Unit
                 }
-                delay(10_000)
+                delay(TRACKING_REFRESH_INTERVAL_MS)
             }
         }
+    }
+
+    private companion object {
+        const val TRACKING_REFRESH_INTERVAL_MS = 10_000L
     }
 }
 
@@ -183,11 +186,12 @@ class NotificationsViewModel(private val repository: TransportRepository) : View
     }
 }
 
-class ChatViewModel(private val repository: TransportRepository) : ViewModel() {
+class ChatViewModel(
+    private val repository: TransportRepository,
+    private val threadId: String,
+) : ViewModel() {
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages = _messages.asStateFlow()
-    private val threadId = "booking-thread"
-
     init {
         viewModelScope.launch {
             repository.observeChat(threadId).collect { _messages.value = it }
@@ -229,5 +233,3 @@ fun <T : ViewModel> vmFactory(create: () -> T): ViewModelProvider.Factory =
     object : ViewModelProvider.Factory {
         override fun <VM : ViewModel> create(modelClass: Class<VM>): VM = create() as VM
     }
-
-private suspend fun <T> Flow<T>.collectOne(): T = first()

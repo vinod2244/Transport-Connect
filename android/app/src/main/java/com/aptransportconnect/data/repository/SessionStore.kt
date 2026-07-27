@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 private val Context.dataStore by preferencesDataStore(name = "transport_connect")
 
 class SessionStore(private val context: Context) {
+    private val syncPrefs = context.getSharedPreferences("transport_connect_sync", Context.MODE_PRIVATE)
     private object Keys {
         val onboardingDone = booleanPreferencesKey("onboarding_done")
         val authToken = stringPreferencesKey("auth_token")
@@ -29,6 +30,7 @@ class SessionStore(private val context: Context) {
     }
 
     suspend fun persistSession(token: String, refreshToken: String, mobile: String, role: String, remember: Boolean) {
+        syncPrefs.edit().putString("auth_token", token).apply()
         context.dataStore.edit {
             it[Keys.authToken] = token
             it[Keys.refreshToken] = refreshToken
@@ -39,6 +41,7 @@ class SessionStore(private val context: Context) {
     }
 
     suspend fun clearSession() {
+        syncPrefs.edit().remove("auth_token").apply()
         context.dataStore.edit {
             it.remove(Keys.authToken)
             it.remove(Keys.refreshToken)
@@ -46,5 +49,7 @@ class SessionStore(private val context: Context) {
             it.remove(Keys.role)
             it[Keys.rememberMe] = false
         }
+
+        fun authTokenSync(): String = syncPrefs.getString("auth_token", "").orEmpty()
     }
 }

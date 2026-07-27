@@ -41,6 +41,7 @@ import com.aptransportconnect.utils.ServiceLocator
 import kotlinx.coroutines.launch
 
 object AppRoute {
+    const val DEFAULT_CHAT_THREAD = "support-thread"
     const val SPLASH = "splash"
     const val ONBOARDING = "onboarding"
     const val LOGIN = "login"
@@ -53,7 +54,7 @@ object AppRoute {
     const val PAYMENT = "payment/{bookingId}/{amount}"
     const val BOOKING_HISTORY = "booking_history"
     const val NOTIFICATIONS = "notifications"
-    const val CHAT = "chat"
+    const val CHAT = "chat/{threadId}"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
 }
@@ -145,8 +146,12 @@ fun AppNavGraph() {
             val vm: NotificationsViewModel = viewModel(factory = vmFactory { NotificationsViewModel(repository) })
             NotificationsScreen(vm)
         }
-        composable(AppRoute.CHAT) {
-            val vm: ChatViewModel = viewModel(factory = vmFactory { ChatViewModel(repository) })
+        composable(
+            route = AppRoute.CHAT,
+            arguments = listOf(navArgument("threadId") { type = NavType.StringType }),
+        ) { entry ->
+            val threadId = entry.arguments?.getString("threadId").orEmpty().ifBlank { AppRoute.DEFAULT_CHAT_THREAD }
+            val vm: ChatViewModel = viewModel(factory = vmFactory { ChatViewModel(repository, threadId) })
             ChatScreen(vm)
         }
         composable(AppRoute.PROFILE) {
