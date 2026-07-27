@@ -30,11 +30,11 @@
 - Repository Pattern
 - Retrofit + Coroutines
 - Room Database
-- Hilt Dependency Injection
+- DataStore for session/first-launch state
 - Google Maps & Places
 - Material Design 3
-- FCM Push Notifications
-- WorkManager for background tasks
+- Navigation Component (Compose)
+- Coil image loading
 
 ### Backend (PHP)
 - PHP 8.3
@@ -112,11 +112,26 @@ Transport-Connect/
    mysql -u root -p < database/schema.sql
    ```
 
-4. **Android Setup**
-   - Open `android/UserApp` in Android Studio
-   - Update API base URL in `BuildConfig`
-   - Add Firebase Google Services JSON
-   - Build and run
+4. **Android Customer App Setup**
+   ```bash
+   cd android
+   gradle test
+   gradle :app:assembleDebug
+   ```
+   - Open `android/` in Android Studio (or run via CLI as above)
+   - Set `MAPS_API_KEY` and `API_BASE_URL` in your `~/.gradle/gradle.properties` (or project `gradle.properties`)
+     - `MAPS_API_KEY=your_google_maps_key`
+     - `API_BASE_URL=https://your-backend-host/api/`
+   - Run the app module `:app`
+
+### Android Customer App Features
+- Splash + onboarding (first-launch persisted with DataStore)
+- Login + OTP verification flow
+- Home, Search Vehicle, Booking, Booking Details
+- Live Tracking (Google Maps marker/camera updates)
+- Payment state flow (initiated/success/failure)
+- Booking history, notifications cache (Room), chat threads
+- Profile + settings/logout with session/cache cleanup
 
 ## User Roles
 
