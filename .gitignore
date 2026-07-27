@@ -27,6 +27,7 @@ backend/node_modules/
 backend/.env
 backend/.env.local
 backend/composer.lock
+backend/.phpunit.result.cache
 backend/storage/logs/
 backend/storage/cache/
 backend/public/uploads/

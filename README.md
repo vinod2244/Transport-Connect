@@ -183,14 +183,18 @@ Detailed API documentation is available in `documentation/API.md`
 ## Authentication
 
 ### Login Methods
-- Mobile Number + OTP
-- Email + Password
-- Google Sign-In
-- Biometric Authentication
-- Remember Me functionality
+- Role-aware login for `customer`, `driver`, `owner`, and `admin`
+- Email/phone + password login
+- Email/phone OTP login with expiry, retry limits, and resend throttling
+- Refresh-token based sessions with rotation and revocation
+- Remember Me support via extended refresh-token lifetime
 
 ### Security
-- JWT with refresh tokens
+- JWT access tokens with role + session claims
+- Server-side refresh-token storage with hashing, rotation, and revocation
+- Session tracking per device with last activity timestamps
+- Password reset + change password flows
+- RBAC guard enforcement on protected routes
 - Password hashing (bcrypt)
 - Prepared statements (SQL Injection protection)
 - XSS protection
@@ -204,6 +208,10 @@ Key tables:
 - `users` - User accounts
 - `roles` - User roles
 - `permissions` - Role permissions
+- `auth_sessions` - Active device/session tracking
+- `auth_refresh_tokens` - Refresh token rotation + revocation records
+- `auth_otps` - OTP delivery + verification challenges
+- `password_reset_tokens` - Forgot-password verification grants
 - `vehicles` - Vehicle listings
 - `bookings` - Booking records
 - `drivers` - Driver profiles
@@ -214,6 +222,20 @@ Key tables:
 - `notifications` - Push notifications
 
 Full schema available in `database/schema.sql`
+
+### Auth API Highlights
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/send-otp`
+- `POST /api/auth/verify-otp`
+- `POST /api/auth/refresh`
+- `POST /api/auth/logout`
+- `POST /api/auth/logout-all`
+- `GET /api/auth/sessions`
+- `POST /api/auth/forgot-password`
+- `POST /api/auth/verify-password-reset`
+- `POST /api/auth/reset-password`
+- `POST /api/auth/change-password`
 
 ## Notifications
 

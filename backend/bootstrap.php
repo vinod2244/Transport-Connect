@@ -1,12 +1,61 @@
 <?php
 
-require __DIR__ . '/vendor/autoload.php';
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require __DIR__ . '/vendor/autoload.php';
+} else {
+    spl_autoload_register(static function (string $class): void {
+        $prefixes = [
+            'App\\' => __DIR__ . '/app/',
+            'Tests\\' => __DIR__ . '/tests/',
+        ];
 
-use Dotenv\Dotenv;
+        foreach ($prefixes as $prefix => $baseDir) {
+            if (!str_starts_with($class, $prefix)) {
+                continue;
+            }
+
+            $relativeClass = substr($class, strlen($prefix));
+            $path = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+
+            if (file_exists($path)) {
+                require $path;
+            }
+        }
+    });
+}
 
 // Load environment variables
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+$envPath = __DIR__ . '/.env';
+if (file_exists($envPath)) {
+    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if ($trimmed === '' || str_starts_with($trimmed, '#') || !str_contains($trimmed, '=')) {
+            continue;
+        }
+
+        [$key, $value] = explode('=', $trimmed, 2);
+        $key = trim($key);
+        $value = trim($value);
+
+        if (
+            (str_starts_with($value, '"') && str_ends_with($value, '"'))
+            || (str_starts_with($value, "'") && str_ends_with($value, "'"))
+        ) {
+            $value = substr($value, 1, -1);
+        }
+
+        $_ENV[$key] = $value;
+        $_SERVER[$key] = $value;
+    }
+}
+
+// Helper function to get environment variable
+if (!function_exists('env')) {
+    function env(string $key, mixed $default = null): mixed {
+        return $_ENV[$key] ?? $default;
+    }
+}
 
 // Define application constants
 define('BASE_PATH', __DIR__);
@@ -15,6 +64,12 @@ define('CONFIG_PATH', BASE_PATH . '/config');
 define('STORAGE_PATH', BASE_PATH . '/storage');
 define('PUBLIC_PATH', BASE_PATH . '/public');
 define('UPLOAD_PATH', PUBLIC_PATH . '/uploads');
+
+foreach ([STORAGE_PATH, STORAGE_PATH . '/logs', STORAGE_PATH . '/cache'] as $directory) {
+    if (!is_dir($directory)) {
+        mkdir($directory, 0777, true);
+    }
+}
 
 // Set error reporting
 error_reporting(E_ALL);
@@ -28,13 +83,6 @@ date_default_timezone_set(env('SERVER_TIMEZONE', 'UTC'));
 // Start session if needed
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
-}
-
-// Helper function to get environment variable
-if (!function_exists('env')) {
-    function env(string $key, mixed $default = null): mixed {
-        return $_ENV[$key] ?? $default;
-    }
 }
 
 // Helper function to get config
@@ -64,12 +112,38 @@ if (!function_exists('logger')) {
         static $logger;
         
         if (!$logger) {
-            $logger = new \Monolog\Logger('app');
-            $handler = new \Monolog\Handler\StreamHandler(
-                STORAGE_PATH . '/logs/app.log',
-                \Monolog\Level::Debug
-            );
-            $logger->pushHandler($handler);
+            if (class_exists(\Monolog\Logger::class) && class_exists(\Monolog\Handler\StreamHandler::class)) {
+                $logger = new \Monolog\Logger('app');
+                $handler = new \Monolog\Handler\StreamHandler(
+                    STORAGE_PATH . '/logs/app.log',
+                    \Monolog\Level::Debug
+                );
+                $logger->pushHandler($handler);
+            } else {
+                $logger = new class {
+                    public function info(string $message, array $context = []): void
+                    {
+                        $this->write('INFO', $message, $context);
+                    }
+
+                    public function error(string $message, array $context = []): void
+                    {
+                        $this->write('ERROR', $message, $context);
+                    }
+
+                    private function write(string $level, string $message, array $context = []): void
+                    {
+                        $line = sprintf(
+                            "[%s] %s %s %s\n",
+                            date('Y-m-d H:i:s'),
+                            $level,
+                            $message,
+                            $context ? json_encode($context) : ''
+                        );
+                        file_put_contents(STORAGE_PATH . '/logs/app.log', $line, FILE_APPEND);
+                    }
+                };
+            }
         }
         
         return $logger;
@@ -104,6 +178,7 @@ return [
     'app' => config('app'),
     'database' => config('database'),
     'jwt' => config('jwt'),
+    'auth' => config('auth'),
     'payment' => config('payment'),
     'firebase' => config('firebase'),
 ];

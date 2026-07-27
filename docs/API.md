@@ -17,8 +17,13 @@ Content-Type: application/json
 
 Request Body:
 {
-  "email": "user@example.com",
-  "password": "password123"
+  "identifier": "user@example.com",
+  "password": "Password@123",
+  "role": "customer",
+  "remember_me": false,
+  "device_id": "device-001",
+  "device_name": "Chrome on Mac",
+  "device_type": "web"
 }
 
 Response (200):
@@ -31,16 +36,39 @@ Response (200):
       "name": "John Doe",
       "email": "user@example.com",
       "role": "customer",
-      "phone": "+919999999999"
+      "phone": "9999999999"
     },
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "access_token": "******",
+    "refresh_token": "******",
     "token_type": "Bearer",
-    "expires_in": 3600
+    "expires_in": 3600,
+    "refresh_expires_in": 604800,
+    "remember_me": false,
+    "session": {
+      "id": "******",
+      "device_id": "device-001",
+      "device_name": "Chrome on Mac",
+      "device_type": "web"
+    }
   },
   "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
+
+### OTP Login + Recovery
+
+```
+POST /auth/send-otp
+POST /auth/verify-otp
+POST /auth/forgot-password
+POST /auth/verify-password-reset
+POST /auth/reset-password
+POST /auth/change-password
+GET  /auth/sessions
+POST /auth/logout-all
+```
+
+`send-otp` accepts `identifier`, `role`, `purpose` (`login` or `password_reset`) and optional `channel` (`phone` or `email`). `verify-password-reset` returns a short-lived `reset_token` that must be supplied to `/auth/reset-password`.
 
 ### Register Endpoint
 
@@ -50,12 +78,10 @@ Content-Type: application/json
 
 Request Body:
 {
-  "first_name": "John",
-  "last_name": "Doe",
+  "name": "John Doe",
   "email": "user@example.com",
-  "phone": "+919999999999",
-  "password": "password123",
-  "password_confirmation": "password123",
+  "phone": "9999999999",
+  "password": "Password@123",
   "role": "customer"
 }
 
@@ -67,7 +93,7 @@ Response (201):
     "id": 1,
     "name": "John Doe",
     "email": "user@example.com",
-    "phone": "+919999999999",
+    "phone": "9999999999",
     "role": "customer",
     "created_at": "2024-01-15T10:30:00Z"
   },
@@ -79,16 +105,22 @@ Response (201):
 
 ```
 POST /auth/refresh
-Authorization: Bearer {refresh_token}
+Content-Type: application/json
+
+{
+  "refresh_token": "******",
+  "device_id": "device-001"
+}
 
 Response (200):
 {
   "success": true,
   "message": "Token refreshed",
   "data": {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expires_in": 3600
+    "access_token": "******",
+    "refresh_token": "******",
+    "expires_in": 3600,
+    "refresh_expires_in": 604800
   }
 }
 ```
