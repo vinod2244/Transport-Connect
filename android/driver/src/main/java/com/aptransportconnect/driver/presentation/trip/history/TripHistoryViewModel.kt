@@ -12,7 +12,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-enum class TripHistoryFilter { ALL, COMPLETED, CANCELLED }
+enum class TripHistoryFilter(val displayName: String) {
+    ALL("All"),
+    COMPLETED("Completed"),
+    CANCELLED("Cancelled")
+}
 
 sealed interface TripHistoryUiState {
     data object Loading : TripHistoryUiState

@@ -18,7 +18,7 @@ android {
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = "YOUR_GOOGLE_MAPS_API_KEY"
-        buildConfigField("String", "BASE_URL", ""https://api.example.com/"")
+        buildConfigField("String", "BASE_URL", "\"https://api.example.com/\"")
         vectorDrawables.useSupportLibrary = true
     }
 

@@ -34,7 +34,7 @@ fun TripHistoryScreen(viewModel: TripHistoryViewModel = hiltViewModel()) {
             is TripHistoryUiState.Success -> Column(modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TripHistoryFilter.entries.forEach { filter ->
-                        AssistChip(onClick = { viewModel.setFilter(filter) }, label = { Text(filter.name.lowercase().replaceFirstChar { it.titlecase() }) })
+                        AssistChip(onClick = { viewModel.setFilter(filter) }, label = { Text(filter.displayName) })
                     }
                 }
                 val grouped = uiState.trips.groupBy { it.requestedAt.toDateGroup() }.entries.toList()
