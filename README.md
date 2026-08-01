@@ -340,3 +340,28 @@ For support, email: support@aptransportconnect.com
 
 **Last Updated**: July 26, 2024
 **Version**: 1.0.0
+
+## Android Driver App (`android/driver`)
+
+### Build & Run
+1. Open the `android/` folder in Android Studio.
+2. Add `google-services.json` to `android/driver/` if you want live Firebase services.
+3. Build the driver app with the `driver` run configuration or `gradle :driver:assembleDebug`.
+4. Install the generated APK for package `com.aptransportconnect.driver`.
+
+### Google Maps Setup
+- Replace the `GOOGLE_MAPS_API_KEY` manifest placeholder in `android/driver/build.gradle.kts`.
+- Enable Maps SDK for Android in your Google Cloud project.
+- Restrict the key to the driver app package and SHA-1 certificate.
+
+### Firebase / FCM Setup
+- Create a Firebase Android app for `com.aptransportconnect.driver`.
+- Download `google-services.json` and place it in `android/driver/`.
+- Enable Firebase Cloud Messaging and use `DriverFirebaseMessagingService` for token sync and notification handling.
+
+### Driver App Architecture
+- **UI**: Jetpack Compose + Material 3 screens with Compose Navigation.
+- **Presentation**: MVVM view models using `StateFlow` and coroutines.
+- **Domain**: Repository interfaces and focused use cases for trips, wallet, earnings, and location.
+- **Data**: Retrofit/OkHttp networking, Room offline cache, and DataStore-backed JWT/session preferences.
+- **Services**: Foreground GPS tracking service and Firebase messaging service.
